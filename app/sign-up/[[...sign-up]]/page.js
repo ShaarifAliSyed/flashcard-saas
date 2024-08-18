@@ -2,21 +2,21 @@ import { SignUp } from "@clerk/nextjs";
 import { AppBar, Button, Container, Typography, Link, Box, Toolbar } from "@mui/material";
 
 export default function SignUpPage() {
-    return <Container maxWidth = "100vw">
+    return <Container maxWidth={false} disableGutters>
         <AppBar position="static">
             <Toolbar>
-                <Typography variant="h6" sx={{
-                    flexGrow: 1,
-                }}>
-                    Flashcard SaaS
-                </Typography>
+                <Link href="/" passHref style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
+                    <Typography variant="h6" style={{flexGrow: 1}}>
+                        Flashcard SaaS
+                    </Typography>
+                </Link>
                 <Button color="inherit">
-                    <Link href="/sign-in" passHref>
+                    <Link href="/sign-in" passHref style={{ textDecoration: 'none', color: 'inherit' }}>
                         Login
                     </Link>
                 </Button>
                 <Button color="inherit">
-                    <Link href="/sign-up" passHref>
+                    <Link href="/sign-up" passHref style={{ textDecoration: 'none', color: 'inherit' }}>
                         Sign Up
                     </Link>
                 </Button>
@@ -29,7 +29,7 @@ export default function SignUpPage() {
             alignItems="center"
             justifyContent="center"
         >
-            <Typography variant="h4">Sign Up</Typography>
+            <Typography variant="h4" sx = {{mt: 2, mb: 2}}>Sign Up</Typography>
             <SignUp/>
         </Box>
     </Container>

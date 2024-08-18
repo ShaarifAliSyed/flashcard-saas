@@ -1,9 +1,10 @@
 'use client'
-import { useUser } from "@clerk/nextjs"
-import { Container, Paper, TextField, Typography, Box, Button, Grid, CardActionArea, CardContent, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Card } from "@mui/material"
-import { writeBatch } from "firebase/firestore"
+import { useUser, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
+import { db } from "@/firebase"
+import { Container, Paper, TextField, Typography, Box, Button, Grid, CardActionArea, CardContent, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Card, CircularProgress, Link, AppBar, Toolbar } from "@mui/material"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { doc, collection, setDoc, getDoc, writeBatch } from "firebase/firestore"
 
 export default function Generate() {
     const {isLoaded, isSignedIn, user} = useUser()
@@ -12,17 +13,39 @@ export default function Generate() {
     const [text, setText] = useState('')
     const [name, setName] = useState('')
     const [open, setOpen] = useState(false)
+    const [loading, setLoading] = useState(false)
     const router = useRouter()
 
     const handleSubmit = async () => {
-        fetch('/api/generate', {
-            method: 'POST',
-            body: text
-        })
-        .then((res) => res.json())
-        .then((data) => setFlashcards(data))
-        // setText('') // clear input textfield
-    }
+        setLoading(true); // Start loading as soon as the button is clicked
+    
+        try {
+            const res = await fetch('/api/generate', {
+                method: 'POST',
+                body: text
+            });
+    
+            const data = await res.json();
+            setFlashcards(data); // Update flashcards state
+            setLoading(false); // Stop loading after flashcards are set
+            setText(''); // Clear input textfield
+        } catch (error) {
+            console.error('Error generating flashcards:', error);
+            setLoading(false); // Stop loading in case of an error
+        }
+    };
+
+    // const handleSubmit = async () => {
+    //     fetch('/api/generate', {
+    //         method: 'POST',
+    //         body: text
+    //     })
+    //     .then((res) => res.json())
+    //     .then((data) => 
+    //         setFlashcards(data)
+    //     )
+    //     setText('') // clear input textfield
+    // }
 
     const handleCardClick = (id) => {
         setFlipped((prev) => ({
@@ -46,6 +69,7 @@ export default function Generate() {
         }
 
         const batch = writeBatch(db)
+        // Make sure user is signed in here! Otherwise it will not work
         const userDocRef = doc(collection(db, 'users'), user.id)
         const docSnap = await getDoc(userDocRef)
 
@@ -73,7 +97,25 @@ export default function Generate() {
         router.push('/flashcards')
     }
 
-    return <Container maxWidth = "md">
+    return <Container maxWidth={false} disableGutters>
+
+        <AppBar position="static">
+            <Toolbar>
+                <Link href="/" passHref style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
+                    <Typography variant="h6" style={{flexGrow: 1}}>
+                    Flashcard SaaS
+                    </Typography>
+                </Link>
+                <SignedOut>
+                    <Button color="inherit" href="/sign-in">Login</Button>
+                    <Button color="inherit" href="/sign-up">Sign Up</Button>
+                </SignedOut>
+                <SignedIn>
+                    <UserButton/>
+                </SignedIn>
+            </Toolbar>
+      </AppBar>
+
         <Box sx = {{
             mt: 4, 
             mb: 6, 
@@ -82,7 +124,9 @@ export default function Generate() {
             alignItems: 'center'
         }}
         >
-            <Typography variant="h4">Generate Flashcards</Typography>
+            <Typography variant="h4" style={{flexGrow: 1}}>
+                Generate Flashcards
+            </Typography>
             <Paper sx = {{p: 4, width: '100%'}}>
                 <TextField 
                     value = {text} 
@@ -106,6 +150,13 @@ export default function Generate() {
                 </Button>
             </Paper>
         </Box>
+
+        {/* Circular Loading Indicator */}
+        {loading && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                <CircularProgress />
+            </Box>
+        )}
 
         {flashcards.length > 0 && (
             <Box sx = {{mt: 4}}>
@@ -144,7 +195,6 @@ export default function Generate() {
                                         },
                                         '& > div > div:nth-of-type(2)': {
                                             transform: 'rotateY(180deg)',
-                                            
                                         }
                                     }}>
                                         <div>

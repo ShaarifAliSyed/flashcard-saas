@@ -1,27 +1,102 @@
+'use client'
 import Image from "next/image";
 import getStripe from "@/utils/get-stripe";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { AppBar, Container, Toolbar, Typography, Button, Box, Grid } from "@mui/material";
-// import Head from "next/head";
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
+import { AppBar, Container, Toolbar, Typography, Button, Box, Grid, Link } from "@mui/material";
+import Head from "next/head";
+import { useRouter } from 'next/navigation'
 
 // migration to Metadata API for newer versions of Next.js recommends this method, instead of using - import Head from "next/head";
-export const metadata = {
-  title: 'Flashcard SaaS',
-  description: 'Create Flashcard from your text',
-};
+// export const metadata = {
+//   title: 'Flashcard SaaS',
+//   description: 'Create Flashcard from your text',
+// };
 
 export default function Home() {
+  const { isLoaded, isSignedIn } = useUser();
+  const router = useRouter()
+
+  const handleClickGenerate = () => {
+    if (isSignedIn) {
+      router.push("/generate");
+    } else {
+      router.push("/sign-in");
+    }
+  }
+
+  const handleClickCollections = () => {
+    if (isSignedIn) {
+      router.push("/flashcards");
+    } else {
+      router.push("/sign-in");
+    }
+  }
+
+  const handleSubmitBasic = async () => {
+    const checkoutSession = await fetch('/api/checkout_session_basic', {
+      method: "POST",
+      headers: {
+        origin: 'http://localhost:3000'
+      }
+    })
+
+    const checkoutSessionJson = await checkoutSession.json()
+
+    if (checkoutSession.statusCode === 500) {
+      console.error(checkoutSession.message)
+      return
+    }
+
+    const stripe = await getStripe()
+    const {error} = await stripe.redirectToCheckout({
+      sessionId: checkoutSessionJson.id
+    })
+
+    if (error) {
+      console.warn(error.message)
+    }
+  }
+
+  const handleSubmitPro = async () => {
+    const checkoutSession = await fetch('/api/checkout_session_pro', {
+      method: "POST",
+      headers: {
+        origin: 'http://localhost:3000'
+      }
+    })
+
+    const checkoutSessionJson = await checkoutSession.json()
+
+    if (checkoutSession.statusCode === 500) {
+      console.error(checkoutSession.message)
+      return
+    }
+
+    const stripe = await getStripe()
+    const {error} = await stripe.redirectToCheckout({
+      sessionId: checkoutSessionJson.id
+    })
+
+    if (error) {
+      console.warn(error.message)
+    }
+  }
+
   return (
     // disableGutters prop on the Container component removes the default padding and allows the component to cover the full width of the screen
     <Container maxWidth={false} disableGutters>
-      {/* <Head>
+      <Head>
         <title>Flashcard SaaS</title>
         <meta name="description" content="Create Flashcard from your text"/>
-      </Head> */}
+      </Head>
 
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" style={{flexGrow: 1}}>Flashcard SaaS</Typography>
+          <Link href="/" passHref style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
+            <Typography variant="h6" style={{flexGrow: 1}}>
+              Flashcard SaaS
+            </Typography>
+          </Link>
           <SignedOut>
             <Button color="inherit" href="/sign-in">Login</Button>
             <Button color="inherit" href="/sign-up">Sign Up</Button>
@@ -38,7 +113,16 @@ export default function Home() {
       }}>
         <Typography variant="h2">Welcome to Flashcard SaaS</Typography>
         <Typography variant="h5">The easiest way to make flashcards from your text</Typography>
-        <Button variant="contained" color="primary" sx={{mt: 2}}>Get Started</Button>
+        <Box sx={{
+          textAlign: 'center',
+          my: 2,
+          display: 'flex',
+          justifyContent: 'center', // Center-align the buttons
+          gap: 2, // Adds space between buttons
+        }}>
+          <Button variant="contained" color="primary" sx={{mt: 2}} onClick={handleClickGenerate}>Create Flashcards</Button>
+          <Button variant="contained" color="primary" sx={{mt: 2}} onClick={handleClickCollections}>View Flashcard Collections</Button>
+        </Box>
       </Box>
 
 
@@ -73,7 +157,7 @@ export default function Home() {
               <Typography variant="h5" gutterBottom>Basic</Typography>
               <Typography variant="h6" gutterBottom>$5 / Month</Typography>
               <Typography>Access to basic flashcard features and limited storage.</Typography>
-              <Button variant="contained" color="primary" sx={{mt: 2}}>Choose Basic</Button>
+              <Button variant="contained" color="primary" sx={{mt: 2}} onClick = {handleSubmitBasic}>Choose Basic</Button>
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
@@ -86,7 +170,7 @@ export default function Home() {
               <Typography variant="h5" gutterBottom>Pro</Typography>
               <Typography variant="h6" gutterBottom>$10 / Month</Typography>
               <Typography>Unlimted flashcards and storage, with priority support.</Typography>
-              <Button variant="contained" color="primary" sx={{mt: 2}}>Choose Basic</Button>
+              <Button variant="contained" color="primary" sx={{mt: 2}} onClick = {handleSubmitPro}>Choose Pro</Button>
             </Box>
           </Grid>
         </Grid>
