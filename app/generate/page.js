@@ -1,6 +1,6 @@
 'use client'
 import { useUser } from "@clerk/nextjs"
-import { Container, Paper, TextField, Typography, Box, Button, Grid, CardActionArea, CardContent, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material"
+import { Container, Paper, TextField, Typography, Box, Button, Grid, CardActionArea, CardContent, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Card } from "@mui/material"
 import { writeBatch } from "firebase/firestore"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -21,12 +21,13 @@ export default function Generate() {
         })
         .then((res) => res.json())
         .then((data) => setFlashcards(data))
+        // setText('') // clear input textfield
     }
 
     const handleCardClick = (id) => {
         setFlipped((prev) => ({
             ...prev,
-            [id]: !prev.id
+            [id]: !prev[id]
         }))
     }
 
@@ -141,7 +142,7 @@ export default function Generate() {
                                             padding: 2,
                                             boxSizing: 'border-box'
                                         },
-                                        '& > div > div:nth-of-type': {
+                                        '& > div > div:nth-of-type(2)': {
                                             transform: 'rotateY(180deg)',
                                             
                                         }
