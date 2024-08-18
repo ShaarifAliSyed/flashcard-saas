@@ -5,18 +5,18 @@ export default function SignUpPage() {
     return <Container maxWidth={false} disableGutters>
         <AppBar position="static">
             <Toolbar>
-                <Link href="/" passHref style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
+                <Link href="/" style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
                     <Typography variant="h6" style={{flexGrow: 1}}>
                         Flashcard SaaS
                     </Typography>
                 </Link>
                 <Button color="inherit">
-                    <Link href="/sign-in" passHref style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <Link href="/sign-in" style={{ textDecoration: 'none', color: 'inherit' }}>
                         Login
                     </Link>
                 </Button>
                 <Button color="inherit">
-                    <Link href="/sign-up" passHref style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <Link href="/sign-up" style={{ textDecoration: 'none', color: 'inherit' }}>
                         Sign Up
                     </Link>
                 </Button>

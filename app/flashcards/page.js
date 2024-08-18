@@ -40,7 +40,7 @@ export default function Flashcards() {
 
         <AppBar position="static">
             <Toolbar>
-                <Link href="/" passHref style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
+                <Link href="/" style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
                     <Typography variant="h6" style={{flexGrow: 1}}>
                         Flashcard SaaS
                     </Typography>
